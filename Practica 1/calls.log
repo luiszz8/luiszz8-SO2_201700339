@@ -1,0 +1,4 @@
+child.bin(14305) write
+child.bin(14306) write
+child.bin(14305) read
+child.bin(14306) read
