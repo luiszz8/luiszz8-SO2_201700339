@@ -40,7 +40,7 @@ int main() {
         arg_Ptr[1] = fdd; // Se cambió el argumento para identificar al primer hijo
         arg_Ptr[2] = NULL;
 
-        execv("/home/luis/Escritorio/Practica 1/child.bin", arg_Ptr);
+        execv("/home/luis/Escritorio/SO2/Practica 1/child.bin", arg_Ptr);
     }
 
     // Crear el segundo hijo
@@ -60,7 +60,7 @@ int main() {
         arg_Ptr[1] = fdd; // Se cambió el argumento para identificar al segundo hijo
         arg_Ptr[2] = NULL;
 
-        execv("/home/luis/Escritorio/Practica 1/child.bin", arg_Ptr);
+        execv("/home/luis/Escritorio/SO2/Practica 1/child.bin", arg_Ptr);
     }
 
     // Código para el padre

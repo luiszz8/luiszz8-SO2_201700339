@@ -1,19 +1,21 @@
 #!/usr/bin/stap
 
+
+
 probe syscall.read {
     if(pid() == $1 || pid() == $2){
-        printf("%s %s(%d) %s\n","Proceso",execname(), pid(), name)
+        printf("Proceso %d:%s %s %s\n" ,pid(),execname(), name,ctime())
     }
 }
 
 probe syscall.write {
     if(pid() == $1 || pid() == $2){
-        printf("%s(%d) %s\n",execname(), pid(), name)
+        printf("Proceso %d:%s %s %s\n" ,pid(),execname(), name,ctime())
     }
 }
 
 probe syscall.lseek {
     if(pid() == $1 || pid() == $2){
-        printf("%s(%d) %s\n",execname(), pid(), name)
+        printf("Proceso %d:%s %s %s\n" ,pid(),execname(), name,ctime())
     }
 }
