@@ -2,7 +2,7 @@
 
 probe syscall.read {
     if(pid() == $1 || pid() == $2){
-        printf("%s(%d) %s\n",execname(), pid(), name)
+        printf("%s %s(%d) %s\n","Proceso",execname(), pid(), name)
     }
 }
 
