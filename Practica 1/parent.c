@@ -7,23 +7,31 @@
 #include <fcntl.h>
 #include <signal.h>
 
-// Se define una variable global para contar el número total de llamadas al sistema
-int total_syscalls = 0;
 
-// Función para manejar la señal SIGINT
+int logc=0;
+
 void sigint_handler(int signum) {
-    printf("\nNúmero total de llamadas al sistema: %d\n", total_syscalls);
+    int writeC=0;
+    int ReadC=0;
+    read(logc,&writeC,sizeof(int));
+    printf("Total Llamadas:%d\n" ,writeC);
     printf("Terminando proceso padre\n");
     exit(0);
 }
 
 int main() {
-    // Configurar el manejador de señales para SIGINT
     signal(SIGINT, sigint_handler);
-    int fd = open("practica1.txt", O_RDWR | O_CREAT, 0777);
+    int fd = open("practica1.txt",  O_RDWR | O_CREAT | O_TRUNC, 0777);
     char fdd[20];
+    int fdp[2]; //Descriptor del pipe
+    pipe(fdp);
+    logc=fdp[0];
+    char fdp1[9];
+    char fdp2[9];
     sprintf(fdd, "%d", fd);
-    // Crear el primer hijo
+    sprintf(fdp1, "%d", fdp[0]);
+    sprintf(fdp2, "%d", fdp[1]);
+
     pid_t pid1 = fork();
 
     if (pid1 == -1) {
@@ -32,13 +40,15 @@ int main() {
     }
 
     if (pid1 == 0) {
-        printf("Hijjo 1");
+        //printf("Hijjo 1");
         // Código para el primer hijo
-        signal(SIGINT, SIG_DFL);
-        char *arg_Ptr[3];
-        arg_Ptr[0] = "child.bin"; // Se corrigió el nombre del ejecutable del hijo
-        arg_Ptr[1] = fdd; // Se cambió el argumento para identificar al primer hijo
-        arg_Ptr[2] = NULL;
+        //signal(SIGINT, SIG_DFL);
+        char *arg_Ptr[4];
+        arg_Ptr[0] = "child.bin";
+        arg_Ptr[1] = fdd; 
+        arg_Ptr[2] = fdp1;
+        arg_Ptr[3] = fdp2;
+        arg_Ptr[4] = NULL;
 
         execv("/home/luis/Escritorio/SO2/Practica 1/child.bin", arg_Ptr);
     }
@@ -52,24 +62,26 @@ int main() {
     }
 
     if (pid2 == 0) {
-        printf("Hijjo 2");
-        // Código para el segundo hijo
-        signal(SIGINT, SIG_DFL);
-        char *arg_Ptr[3];
-        arg_Ptr[0] = "child.bin"; // Se corrigió el nombre del ejecutable del hijo
-        arg_Ptr[1] = fdd; // Se cambió el argumento para identificar al segundo hijo
-        arg_Ptr[2] = NULL;
+        //printf("Hijjo 2");
+        //signal(SIGINT, SIG_DFL);
+        char *arg_Ptr[4];
+        arg_Ptr[0] = "child.bin"; 
+        arg_Ptr[1] = fdd; 
+        arg_Ptr[2] = fdp1;
+        arg_Ptr[3] = fdp2;
+        arg_Ptr[4] = NULL;
 
         execv("/home/luis/Escritorio/SO2/Practica 1/child.bin", arg_Ptr);
     }
 
     // Código para el padre
-    printf("Soy el proceso padre\n");
-    
+    //printf("Soy el proceso padre\n");
+    int inciial=0;
+    write(fdp[1], &inciial, sizeof(int));
     // Esperar a que ambos hijos terminen
     int status;
     char command[100];
-    sprintf(command, "%s %d %d %s", "sudo stap trace.stp ", pid1, pid2, " > calls.log");
+    sprintf(command, "%s %d %d %s", "sudo stap trace.stp ", pid1, pid2, " > syscalls.log");
     system(command);
     waitpid(pid1, &status, 0);
     waitpid(pid2, &status, 0);
