@@ -11,10 +11,50 @@
 int logc=0;
 
 void sigint_handler(int signum) {
-    int writeC=0;
-    int ReadC=0;
-    read(logc,&writeC,sizeof(int));
-    printf("Total Llamadas:%d\n" ,writeC);
+    int lineas = 0;
+    int writeC = 0;
+    int ReadC = 0;
+    int SeekC = 0;
+
+
+    char buffer[1024];
+    int logcAux = open("syscalls.log", O_RDWR, 0777);
+
+    const char *word_to_search1 = "write";
+    const char *word_to_search2 = "read";
+    const char *word_to_search3 = "lseek";
+    lseek(logcAux, 0, SEEK_SET);
+
+    while (read(logcAux, buffer, sizeof(buffer)) > 0) {
+        char *token = strtok(buffer, "\n"); 
+
+        while (token != NULL) {
+            lineas++; 
+
+            if (strstr(token, word_to_search1) != NULL) {
+                writeC++; 
+            }
+
+            if (strstr(token, word_to_search2) != NULL) {
+                ReadC++; 
+            }
+
+            if (strstr(token, word_to_search3) != NULL) {
+                SeekC++; 
+            }
+
+            token = strtok(NULL, "\n"); 
+        }
+    }
+
+
+    close(logcAux);
+
+
+    printf("Cantidad de procesos: %d \n", lineas-1);
+    printf("Write: %d \n", writeC);
+    printf("Read: %d \n", ReadC);
+    printf("Lseek: %d \n", SeekC);
     printf("Terminando proceso padre\n");
     exit(0);
 }
