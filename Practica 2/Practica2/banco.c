@@ -34,8 +34,10 @@ typedef struct {
 User users[MAX_USERS];
 int total_users = 0;
 int total_errors = 0;
+int total_errorsT = 0;
 pthread_mutex_t mutex;
-FILE *report; // Declarar como variable global para su acceso desde load_users()
+FILE *report;
+FILE *reportT; 
 FILE *transaction;
 int lineaTemp=0;
 
@@ -54,7 +56,7 @@ bool is_valid_balance(const char *balance_str) {
 
 void *load_users(void *data) {
     ThreadData *thread_data = (ThreadData *)data;
-    FILE *file = fopen("prueba_usuarios.csv", "r");
+    FILE *file = fopen("usuarios.csv", "r");
     if (file == NULL) {
         perror("Error al abrir el archivo");
         exit(EXIT_FAILURE);
@@ -128,7 +130,7 @@ User *find_user(int account_number) {
 
 void *load_transaccion(void *data) {
     ThreadData *thread_data = (ThreadData *)data;
-    FILE *file = fopen("prueba_transacciones.csv", "r");
+    FILE *file = fopen("transacciones.csv", "r");
     if (file == NULL) {
         perror("Error al abrir el archivo");
         exit(EXIT_FAILURE);
@@ -152,17 +154,20 @@ void *load_transaccion(void *data) {
                 User *user = find_user(cuenta1);
                 if (user == NULL) {
                     pthread_mutex_lock(&mutex);
-                    fprintf(report, "Hilo %d: Error en línea %d - Número de cuenta no existe \n", 
+                    total_errorsT++;
+                    fprintf(reportT, "Hilo %d: Error en línea %d - Número de cuenta no existe \n", 
                     thread_data->thread_id, index + 1);
                     pthread_mutex_unlock(&mutex);
                 } else if (monto <= 0) {
                     pthread_mutex_lock(&mutex);
-                    fprintf(report, "Hilo %d: Error en línea %d - Saldo menor a 0 \n", 
+                    total_errorsT++;
+                    fprintf(reportT, "Hilo %d: Error en línea %d - Saldo menor a 0 \n", 
                     thread_data->thread_id, index + 1);
                     pthread_mutex_unlock(&mutex);
                 }else{
                     pthread_mutex_lock(&mutex);
                     user->balance += monto;
+                    thread_data->loaded_users++;
                     pthread_mutex_unlock(&mutex);
                 }
                 
@@ -170,22 +175,26 @@ void *load_transaccion(void *data) {
                 User *user = find_user(cuenta1);
                 if (user == NULL) {
                     pthread_mutex_lock(&mutex);
-                    fprintf(report, "Hilo %d: Error en línea %d - Número de cuenta no existe \n", 
+                    total_errorsT++;
+                    fprintf(reportT, "Hilo %d: Error en línea %d - Número de cuenta no existe \n", 
                     thread_data->thread_id, index + 1);
                     pthread_mutex_unlock(&mutex);
                 }else if (monto <= 0) {
                     pthread_mutex_lock(&mutex);
-                    fprintf(report, "Hilo %d: Error en línea %d - Monto menor a 0 \n", 
+                    total_errorsT++;
+                    fprintf(reportT, "Hilo %d: Error en línea %d - Monto menor a 0 \n", 
                     thread_data->thread_id, index + 1);
                     pthread_mutex_unlock(&mutex);
                 }  else if (user->balance < monto) {
                     pthread_mutex_lock(&mutex);
-                    fprintf(report, "Hilo %d: Error en línea %d - Saldo menor a monto \n", 
+                    total_errorsT++;
+                    fprintf(reportT, "Hilo %d: Error en línea %d - Saldo menor a monto \n", 
                     thread_data->thread_id, index + 1);
                     pthread_mutex_unlock(&mutex);
                 }else{
                     pthread_mutex_lock(&mutex);
                     user->balance -= monto;
+                    thread_data->loaded_users++;
                     pthread_mutex_unlock(&mutex);
                 }   
             }else if(operacion==3){
@@ -193,33 +202,39 @@ void *load_transaccion(void *data) {
                 User *to_user = find_user(cuenta2);
                 if (from_user == NULL) {
                     pthread_mutex_lock(&mutex);
-                    fprintf(report, "Hilo %d: Error en línea %d - Número de cuenta origen no existe \n", 
+                    total_errorsT++;
+                    fprintf(reportT, "Hilo %d: Error en línea %d - Número de cuenta origen no existe \n", 
                     thread_data->thread_id, index + 1);
                     pthread_mutex_unlock(&mutex);
                 }else if (to_user == NULL) {
                     pthread_mutex_lock(&mutex);
-                    fprintf(report, "Hilo %d: Error en línea %d - Número de cuenta destino no existe \n", 
+                    total_errorsT++;
+                    fprintf(reportT, "Hilo %d: Error en línea %d - Número de cuenta destino no existe \n", 
                     thread_data->thread_id, index + 1);
                     pthread_mutex_unlock(&mutex);
                 }else if (monto <= 0 ) {
                     pthread_mutex_lock(&mutex);
-                    fprintf(report, "Hilo %d: Error en línea %d - Monto menor a 0 \n", 
+                    total_errorsT++;
+                    fprintf(reportT, "Hilo %d: Error en línea %d - Monto menor a 0 \n", 
                     thread_data->thread_id, index + 1);
                     pthread_mutex_unlock(&mutex);
                 }else if (from_user->balance < monto) {
                     pthread_mutex_lock(&mutex);
-                    fprintf(report, "Hilo %d: Error en línea %d - Saldo menor a monto \n", 
+                    total_errorsT++;
+                    fprintf(reportT, "Hilo %d: Error en línea %d - Saldo menor a monto \n", 
                     thread_data->thread_id, index + 1);
                     pthread_mutex_unlock(&mutex);
                 }else{
                     pthread_mutex_lock(&mutex);
                     from_user->balance -= monto;
                     to_user->balance += monto;
+                    thread_data->loaded_users++;
                     pthread_mutex_unlock(&mutex);
                 }
             }else{
                 pthread_mutex_lock(&mutex);
-                fprintf(report, "Hilo %d: Error en línea %d - Operacion no existe %d \n", 
+                total_errorsT++;
+                fprintf(reportT, "Hilo %d: Error en línea %d - Operacion no existe %d \n", 
                 thread_data->thread_id, index + 1,operacion);
                 pthread_mutex_unlock(&mutex);
             }
@@ -231,7 +246,7 @@ void *load_transaccion(void *data) {
 }
 
 // Función para realizar un depósito
-void deposit() {
+void deposito() {
     int account_number;
     float amount;
     printf("Ingrese el número de cuenta: ");
@@ -252,7 +267,7 @@ void deposit() {
 }
 
 // Función para realizar un retiro
-void withdraw() {
+void retiro() {
     int account_number;
     float amount;
     printf("Ingrese el número de cuenta: ");
@@ -324,6 +339,21 @@ void view_account() {
     printf("Saldo: %.2f\n", user->balance);
 }
 
+// Función para buscar una cuenta por su número de cuenta
+void estado_cuenta() {
+    FILE *file = fopen("estado_cuentas.csv", "w");
+    if (file == NULL) {
+        perror("Error al abrir el archivo");
+        exit(EXIT_FAILURE);
+    }
+    fprintf(file, "no_cuenta,nombre,saldo \n");
+    for (int i = 0; i < total_users; i++) {
+        fprintf(file, "%d, %s, %.2f \n", 
+                    users[i].account_number,users[i].name,users[i].balance);
+    }
+    fclose(file);
+}
+
 int main() {
     pthread_mutex_init(&mutex, NULL);
     pthread_t threads[3];
@@ -385,7 +415,7 @@ int main() {
     fprintf(report, "Total de usuarios cargados: %d\n", total_loaded_users);
     fprintf(report, "Total de errores: %d\n", total_errors);
     
-    
+    fclose(report);
     // Menú de operaciones
     int choice;
     do {
@@ -394,15 +424,17 @@ int main() {
         printf("2. Retiro\n");
         printf("3. Transacción\n");
         printf("4. Consultar cuenta\n");
-        printf("5. Salir\n");
+        printf("5. Carga Masiva\n");
+        printf("6. Estado de Cuentas\n");
+        printf("7. Salir\n");
         printf("Seleccione una opción: ");
         scanf("%d", &choice);
         switch (choice) {
             case 1:
-                deposit();
+                deposito();
                 break;
             case 2:
-                withdraw();
+                retiro();
                 break;
             case 3:
                 transfer();
@@ -411,7 +443,24 @@ int main() {
                 view_account();
                 break;
             case 5:
-                
+                // Obtener la fecha y hora actual
+                //time_t current_time;
+                //struct tm *time_info;
+                //char time_str[20];
+                time(&current_time);
+                time_info = localtime(&current_time);
+                strftime(time_str, sizeof(time_str), "%Y_%m_%d-%H_%M_%S", time_info);
+
+                // Construir el nombre del archivo de reporte
+                char report_filenameT[50];
+                snprintf(report_filenameT, sizeof(report_filenameT), "operaciones_%s.log", time_str);
+
+                // Abrir archivo de reporte
+                reportT = fopen(report_filenameT, "w");
+                if (report == NULL) {
+                    perror("Error al crear el archivo de reporte");
+                    exit(EXIT_FAILURE);
+                }
                 for (int i = 0; i < 4; i++) {
                     thread_dataT[i].thread_id = i + 1;
                     thread_dataT[i].start_index = i * lines_per_threadT;
@@ -429,13 +478,33 @@ int main() {
                 for (int i = 0; i < 4; i++) {
                     pthread_join(threadsT[i], NULL);
                 }
-                fclose(report);
-                printf("Carga Masiva\n");
+                // Generar reporte de carga
+                fprintf(reportT, "Reporte de carga - %d-%02d-%02d %02d:%02d:%02d\n",
+                time_info->tm_year + 1900, time_info->tm_mon + 1, time_info->tm_mday,
+                time_info->tm_hour, time_info->tm_min, time_info->tm_sec);
+
+                fprintf(reportT, "\nDetalles de la carga por hilo:\n");
+                int total_loaded_trans = 0;
+                for (int i = 0; i < 4; i++) {
+                    fprintf(reportT, "Hilo %d: %d transacciones cargadas\n", 
+                        thread_dataT[i].thread_id, thread_dataT[i].loaded_users);
+                    total_loaded_trans += thread_dataT[i].loaded_users;
+                }
+                fprintf(reportT, "Total de transacciones cargadas: %d\n", total_loaded_trans);
+                fprintf(reportT, "Total de errores: %d\n", total_errorsT);
+                fclose(reportT);
+                printf("Carga Lista\n");
+                break;
+            case 6:
+                estado_cuenta();
+                break;
+            case 7:
+                printf("Saliendo.\n");
                 break;
             default:
                 printf("Opción no válida. Por favor, seleccione una opción válida.\n");
         }
-    } while (choice != 5);
+    } while (choice != 7);
     pthread_mutex_destroy(&mutex);
     return 0;
 }
