@@ -1,0 +1,49 @@
+Hilo 2: Error en línea 42 - Número de cuenta: 4483, Saldo: -4.15
+Hilo 2: Error en línea 57 - Número de cuenta duplicado: 5877
+Hilo 2: Error en línea 70 - Número de cuenta: 6051, Saldo: -8.00
+Hilo 1: Error en línea 2 - Número de cuenta duplicado: 2096
+Hilo 1: Error en línea 8 - Número de cuenta: 5237, Saldo no es número 
+Hilo 1: Error en línea 20 - Número de cuenta: 5006, Saldo: -3200.60
+Hilo 1: Error en línea 26 - Número de cuenta: 4024, Saldo no es número 
+Hilo 1: Error en línea 32 - Número de cuenta duplicado: 9439
+Hilo 3: Error en línea 92 - Número de cuenta: 4775, Saldo no es número 
+Hilo 3: Error en línea 101 - Número de cuenta duplicado: 3959
+Reporte de carga - 2024-03-16 23:36:37
+
+Detalles de la carga por hilo:
+Hilo 1: 31 usuarios cargados
+Hilo 2: 34 usuarios cargados
+Hilo 3: 29 usuarios cargados
+Total de usuarios cargados: 94
+Total de errores: 10
+Hilo 3: Error en línea 125 - Monto menor a 0 
+Hilo 3: Error en línea 130 - Saldo menor a monto 
+Hilo 3: Error en línea 131 - Operacion no existe 4 
+Hilo 3: Error en línea 141 - Saldo menor a 0 
+Hilo 3: Error en línea 146 - Operacion no existe 9 
+Hilo 3: Error en línea 148 - Número de cuenta origen no existe 
+Hilo 2: Error en línea 52 - Operacion no existe 4 
+Hilo 2: Error en línea 53 - Número de cuenta destino no existe 
+Hilo 2: Error en línea 64 - Operacion no existe 5 
+Hilo 2: Error en línea 65 - Número de cuenta no existe 
+Hilo 2: Error en línea 73 - Saldo menor a 0 
+Hilo 2: Error en línea 80 - Saldo menor a monto 
+Hilo 2: Error en línea 81 - Operacion no existe 4 
+Hilo 2: Error en línea 87 - Operacion no existe 6 
+Hilo 1: Error en línea 3 - Número de cuenta destino no existe 
+Hilo 1: Error en línea 5 - Número de cuenta destino no existe 
+Hilo 1: Error en línea 11 - Monto menor a 0 
+Hilo 1: Error en línea 20 - Operacion no existe 4 
+Hilo 1: Error en línea 29 - Saldo menor a monto 
+Hilo 1: Error en línea 39 - Operacion no existe 4 
+Hilo 1: Error en línea 40 - Saldo menor a monto 
+Hilo 4: Error en línea 164 - Número de cuenta destino no existe 
+Hilo 4: Error en línea 174 - Saldo menor a 0 
+Hilo 4: Error en línea 180 - Saldo menor a monto 
+Hilo 4: Error en línea 181 - Saldo menor a monto 
+Hilo 4: Error en línea 185 - Saldo menor a 0 
+Hilo 4: Error en línea 187 - Número de cuenta destino no existe 
+Hilo 4: Error en línea 188 - Saldo menor a 0 
+Hilo 4: Error en línea 196 - Operacion no existe 5 
+Hilo 4: Error en línea 198 - Número de cuenta destino no existe 
+Hilo 4: Error en línea 201 - Saldo menor a monto 
